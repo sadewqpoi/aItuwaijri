@@ -1,0 +1,39 @@
+# Netlify: يستضيف الواجهة (مجلد public) والدومين وشهادة HTTPS،
+# ويحوّل كل طلبات /api إلى الخادم على Railway، فيبدو للأعضاء موقعًا واحدًا على دومينك.
+#
+# مهم: استبدل YOUR-APP.up.railway.app برابط خادمك من Railway (Settings ← Networking ← Public domain)
+
+[build]
+  publish = "public"
+  command = ""
+
+# تحويل طلبات الخادم (status 200 = وكيل شفاف، والرابط يبقى على دومينك)
+[[redirects]]
+  from = "/api/*"
+  to = "https://YOUR-APP.up.railway.app/api/:splat"
+  status = 200
+  force = true
+
+# ترويسات الأمان للصفحات الثابتة (نفس سياسة الخادم)
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    Referrer-Policy = "same-origin"
+    Strict-Transport-Security = "max-age=31536000"
+    Content-Security-Policy = "default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self'; frame-ancestors 'none'; form-action 'self' https://*.moyasar.com"
+
+# الصفحة الرئيسية وملفات الواجهة تُراجع دائمًا حتى تصل التحديثات فورًا
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "no-cache"
+[[headers]]
+  for = "/js/*"
+  [headers.values]
+    Cache-Control = "no-cache"
+[[headers]]
+  for = "/css/*"
+  [headers.values]
+    Cache-Control = "no-cache"
